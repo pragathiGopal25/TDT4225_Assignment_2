@@ -1,20 +1,54 @@
 import pandas as pd
 import haversine as hs
+import ast
 
 df = pd.read_csv("porto.csv")
 taxi_dict = {}
 trips_dict ={}
 
-def getTime():
-    timestamp = df["TIMESTAMP"]
-    start_time_list = []
+# Deleting rows where MISSING_DATA is true 
+def refine_data():
+    global df
+    df = df[df["MISSING_DATA"] != True]
 
-    for index, row in timestamp.items():
-        start_time_list.append(pd.to_datetime(row, unit="s").strftime("%Y-%m-%d %H:%M:%S"))
+
+# Calculate duration of trip
+def get_duration():
+    durations = []
+    
+    for coords in trips_dict["coordinates"]:
+      durations.append(len(coords - 1) * 15)
+    # polyline stored as string, so have to count accordingly
+    
+    trips_dict["duration"] = durations
+    print(trips_dict["duration"][:5])
+
+
+# Following two functions calculate the start and end times respectively.
+def get_start_time():
+    start_time_list = (
+        pd.to_datetime(df["TIMESTAMP"], unit="s")
+        .dt.strftime("%Y-%m-%d %H:%M:%S")
+        .tolist()
+    )
 
     trips_dict["start_time"] = start_time_list
 
-    #print(trips_dict["start_time"])
+    print(trips_dict["start_time"][:5])
+
+
+def get_end_time():
+    
+    end_time_list = (
+        (pd.to_datetime(df["TIMESTAMP"], unit="s") + 
+        pd.to_timedelta(trips_dict["duration"], unit="s"))
+        .dt.strftime("%Y-%m-%d %H:%M:%S")
+        .tolist()
+    )
+
+    trips_dict["end_time"] = end_time_list
+
+    print(trips_dict["end_time"][:5])
 
 def getCoordinates():
     polyline = df["POLYLINE"]
@@ -70,10 +104,14 @@ def calculateDistance():
     
 
 def main():
-    getTime()
+    refine_data()
     getCoordinates()
     checkValidity()
     calculateDistance()
+    get_duration()
+    get_start_time()
+    get_end_time()
+    
 
     print(trips_dict["start_time"], trips_dict["valid"],trips_dict["distance"])
 

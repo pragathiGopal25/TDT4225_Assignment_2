@@ -1,15 +1,23 @@
 import pandas as pd
 import haversine as hs
-import ast
 
 df = pd.read_csv("porto.csv")
 taxi_dict = {}
 trips_dict ={}
 
 # Deleting rows where MISSING_DATA is true 
+# Deleting rows with empty polylines
+# Deleting duplicate trips
+# Resetting indexes
 def refine_data():
     global df
+
     df = df[df["MISSING_DATA"] != True]
+    df = df[df["POLYLINE"] != "[]"]
+    df = df.drop_duplicates()
+    df = df.reset_index(drop=True)
+
+    #print("Number of rows after cleaning:", len(df))
 
 
 # Calculate duration of trip
@@ -54,24 +62,21 @@ def getCoordinates():
     polyline = df["POLYLINE"]
     coordinates_list = []
 
-    for index, row in polyline.items():
+    for row in polyline.items():
         row = row[1:-1]
 
-        if row == "":
-            coordinates_list.append([])
-        else:
-            coordinates = row.split("],[")
-            trip_coordinates = []
+        coordinates = row.split("],[")
+        trip_coordinates = []
 
-            for coordinate in coordinates:
-                coordinate = coordinate.replace("[", "").replace("]", "").split(",")
+        for coordinate in coordinates:
+            coordinate = coordinate.replace("[", "").replace("]", "").split(",")
 
-                longitude = float(coordinate[0])
-                latitude = float(coordinate[1])
+            longitude = float(coordinate[0])
+            latitude = float(coordinate[1])
 
-                trip_coordinates.append((latitude, longitude))
+            trip_coordinates.append((latitude, longitude))
 
-            coordinates_list.append(trip_coordinates)
+        coordinates_list.append(trip_coordinates)
 
     trips_dict["coordinates"] = coordinates_list
 
@@ -105,18 +110,18 @@ def calculateDistance():
 
 def main():
     refine_data()
-    getCoordinates()
-    checkValidity()
-    calculateDistance()
-    get_duration()
-    get_start_time()
-    get_end_time()
+    #getCoordinates()
+    #checkValidity()
+    #calculateDistance()
+    #get_duration()
+    #get_start_time()
+    #get_end_time()
     
 
-    print(trips_dict["start_time"], trips_dict["valid"],trips_dict["distance"])
+    #print(trips_dict["start_time"], trips_dict["valid"],trips_dict["distance"])
 
-    false_count = trips_dict["valid"].count(False)
-    print(false_count)
+    #false_count = trips_dict["valid"].count(False)
+    #print(false_count)
 
     # print(df)
 

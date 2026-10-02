@@ -55,16 +55,12 @@ def main():
     p.run()
 
     # Testing columns:
-    # columns = {"taxi_id": "INT"}
     l = LoadData()
     
     # Deleting old table, more for testing purposes
     l.cursor.execute("DROP TABLE IF EXISTS Trips")
     l.cursor.execute("DROP TABLE IF EXISTS Taxi")
     l.db_connection.commit()
-
-    # l.create_table("TaxiTest", columns )
-    # l.load_data("TaxiTest", p.get_table("Taxi"))
 
     l.create_table("Taxi", {"taxi_id": "INT PRIMARY KEY"})
     l.load_data("Taxi", p.get_table("Taxi"))
@@ -78,6 +74,7 @@ def main():
         "distance": "DOUBLE",
         "valid": "BOOLEAN",
         "call_type": "VARCHAR(255)",
+        "circular": "BOOLEAN"
         "FOREIGN KEY (taxi_id)": "REFERENCES Taxi(taxi_id)",
     })
 

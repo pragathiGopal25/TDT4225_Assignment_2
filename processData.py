@@ -89,6 +89,31 @@ class ProcessData:
 
         self.trips_dict["valid"] = validity_list
 
+    def checkCircular(self):
+        circular_list = []
+
+        for coordinates in self.coordinates["coordinates"]:
+            distance = hs.haversine(
+                coordinates[0],
+                coordinates[len(coordinates) - 1]
+            )
+            if (distance <= 0.05):
+                circular_list.append(True)
+
+        self.trips_dict["circular"] = circular_list
+
+     def checkMidnightCrosser(self):
+
+        for start, end from zip(trips_dict["start_time"], trips_dict["end_time"]):
+            s_date = start.
+            distance = hs.haversine(
+                coordinates[0],
+                coordinates[len(coordinates) - 1]
+            )
+            if (distance <= 0.05):
+                circular_list.append(True)
+
+        self.trips_dict["midnight_crossers"] = circular_list
 
     def calculateDistance(self):
         distance_list = []
@@ -148,6 +173,9 @@ class ProcessData:
 
         self.set_call_type()
         print("call type set")
+
+        self.checkCircular()
+        print("circular done")
 
 
     def get_table(self, table_name):

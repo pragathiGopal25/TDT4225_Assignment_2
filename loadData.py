@@ -4,12 +4,15 @@ from DbConnector import DbConnector
 # use this class to load and explore the data
 class LoadData:
 
-    def __init__(self, filename):
+    def __init__(self):
         self.connection = DbConnector()
         self.db_connection = self.connection.db_connection
         self.cursor = self.connection.cursor
-        self.filename = filename
 
+    def run(self, tabel_name, columns):
+        self.create_table(table_name, columns)
+
+        print(f"{table_name} is created")
 
     def create_table(self, table_name, columns):
         column_string = ""
@@ -27,7 +30,10 @@ class LoadData:
     # df = pd.read_csv(filename)
 
 def main():
-    LoadData()
+    table_names = ["Taxi", "Trips"]
+
+    l = LoadData()
+
 
 if __name__ == "__main__":
     main()

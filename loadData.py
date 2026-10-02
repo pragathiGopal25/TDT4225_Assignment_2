@@ -55,27 +55,33 @@ def main():
     p.run()
 
     # Testing columns:
-    columns = {"taxi_id": "INT"}
+    # columns = {"taxi_id": "INT"}
     l = LoadData()
     
     # Deleting old table, more for testing purposes
-    # l.cursor.execute("DROP TABLE IF EXISTS TaxiTest")
-    # l.db_connection.commit()
+    l.cursor.execute("DROP TABLE IF EXISTS Trips")
+    l.cursor.execute("DROP TABLE IF EXISTS Taxi")
+    l.db_connection.commit()
 
-    l.create_table("TaxiTest", columns )
-    l.load_data("TaxiTest", p.get_table("Taxi"))
+    # l.create_table("TaxiTest", columns )
+    # l.load_data("TaxiTest", p.get_table("Taxi"))
 
-    # l.create_table("Taxi", {"taxi_id": "INT PRIMARY KEY"})
-    # l.create_table("Trips", {
-    #     "trip_id": "BIGINT PRIMARY KEY",
-    #     "taxi_id": "INT",
-    #     "start_time": "DATETIME",
-    #     "end_time": "DATETIME",
-    #     "duration": "INT",
-    #     "distance": "DOUBLE",
-    #     "valid": "BOOLEAN",
-    #     "FOREIGN KEY (taxi_id)": "REFERENCES Taxi(taxi_id)",
-    # })
+    l.create_table("Taxi", {"taxi_id": "INT PRIMARY KEY"})
+    l.load_data("Taxi", p.get_table("Taxi"))
+
+    l.create_table("Trips", {
+        "trip_id": "BIGINT PRIMARY KEY",
+        "taxi_id": "INT",
+        "start_time": "VARCHAR(255)",
+        "end_time": "VARCHAR(255)",
+        "duration": "INT",
+        "distance": "DOUBLE",
+        "valid": "BOOLEAN",
+        "call_type": "VARCHAR(255)",
+        "FOREIGN KEY (taxi_id)": "REFERENCES Taxi(taxi_id)",
+    })
+
+    l.load_data("Trips", p.get_table("Trips"))
 
 if __name__ == "__main__":
     main()

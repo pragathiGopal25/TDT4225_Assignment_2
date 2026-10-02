@@ -38,7 +38,7 @@ class LoadData:
             INSERT INTO Taxi (Taxi_ID, Num_Trips, Total_Distance, Total_Duration)
             SELECT Taxi_ID, COUNT(*), SUM(Distance), SUM(Duration)
             FROM Trips
-            WHERE Validity = 0
+            WHERE Validity = 1
             GROUP BY Taxi_ID
         """
         self.cursor.execute(query)

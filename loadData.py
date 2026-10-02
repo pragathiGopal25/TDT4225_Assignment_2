@@ -1,5 +1,5 @@
 from DbConnector import DbConnector
-
+from processData import ProcessData
 
 # use this class to load and explore the data
 class LoadData:
@@ -9,16 +9,11 @@ class LoadData:
         self.db_connection = self.connection.db_connection
         self.cursor = self.connection.cursor
 
-    def run(self, tabel_name, columns):
-        self.create_table(table_name, columns)
-
-        print(f"{table_name} is created")
-
     def create_table(self, table_name, columns):
         column_string = ""
 
         for column, type in columns.items():
-            column_string += column + "" + type + ","
+            column_string += column + " " + type + ","
         
         column_string = column_string.rstrip(",")
 
@@ -26,14 +21,61 @@ class LoadData:
 
         self.cursor.execute(query)
         self.db_connection.commit()
+    
+    def load_data(self, table_name, data_dict):
+        columns = ""
+        placeholders = ""
 
-    # df = pd.read_csv(filename)
+        for index, column in enumerate(data_dict):
+            if index == len(data_dict) - 1:
+                columns += column
+                placeholders += "%s"
+            else:
+                columns += column + ","
+                placeholders += "%s,"
+            index += 1
+
+        # inserts data row by row
+        query = f"""INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"""
+
+        num_rows = len(list(data_dict.values())[0])
+
+        for i in range(num_rows):
+            row = []
+
+            for column in data_dict:
+                row.append(data_dict[column][i])
+
+            self.cursor.execute(query, row)
+
+        self.db_connection.commit()
 
 def main():
-    table_names = ["Taxi", "Trips"]
+    p = ProcessData("porto.csv")
+    p.run()
 
+    # Testing columns:
+    columns = {"taxi_id": "INT"}
     l = LoadData()
+    
+    # Deleting old table, more for testing purposes
+    # l.cursor.execute("DROP TABLE IF EXISTS TaxiTest")
+    # l.db_connection.commit()
 
+    l.create_table("TaxiTest", columns )
+    l.load_data("TaxiTest", p.get_table("Taxi"))
+
+    # l.create_table("Taxi", {"taxi_id": "INT PRIMARY KEY"})
+    # l.create_table("Trips", {
+    #     "trip_id": "BIGINT PRIMARY KEY",
+    #     "taxi_id": "INT",
+    #     "start_time": "DATETIME",
+    #     "end_time": "DATETIME",
+    #     "duration": "INT",
+    #     "distance": "DOUBLE",
+    #     "valid": "BOOLEAN",
+    #     "FOREIGN KEY (taxi_id)": "REFERENCES Taxi(taxi_id)",
+    # })
 
 if __name__ == "__main__":
     main()
